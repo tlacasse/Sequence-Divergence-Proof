@@ -1,0 +1,47 @@
+from sympy import sympify, oo, limit
+import random
+
+class ProblemGenerator:
+    
+    def __init__(self, 
+                 constant_bounds = [1, 100], 
+                 exponent_bounds = [1, 3],
+                 coeff_bounds = [-15, 15],
+                 term_bounds = [1, 4]):
+        self.constant_bounds = constant_bounds
+        self.exponent_bounds = exponent_bounds
+        self.coeff_bounds = coeff_bounds
+        self.term_bounds = term_bounds
+
+    def random_boolean(self):
+        return random.choice([True, False])
+    
+    def random_in_bounds(self, bounds):
+        return random.randint(bounds[0], bounds[1])
+
+    def generate_term(self):
+        if (self.random_boolean()):
+            # constant
+            return str(self.random_in_bounds(self.constant_bounds))
+        # poly
+        coeff = str(self.random_in_bounds(self.coeff_bounds))
+        power = str(self.random_in_bounds(self.exponent_bounds))
+        return coeff + '*n**' + power
+
+    def generate_expression(self):
+        return ' + '.join([
+                self.generate_term() for t in range(self.term_bounds[0], 
+                                                    self.term_bounds[1])])
+
+    def generate_random_problems(self, count = 1):
+        results = []
+        for i in range(count):
+            seq = '0'
+            # force divergent sequences
+            while (limit(seq, 'n', oo) != oo):
+                # sympify to simplifiy
+                numerator = str(sympify(self.generate_expression()))
+                denominator = str(sympify(self.generate_expression()))
+                seq = '(' + numerator + ') / (' + denominator + ')'
+            results.append(seq)     
+        return results if len(results) > 1 else results[0]
