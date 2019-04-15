@@ -1,6 +1,18 @@
 from sympy import sympify, oo, limit
 import random
 
+class Problem:
+    
+    def __init__(self, top, bot):
+        self.top = sympify(top)
+        self.bot = sympify(bot)
+    
+    def __str__(self):
+        return '(' + str(self.top) + ') / (' + str(self.bot) + ')'
+    
+    def __repr__(self):
+        return self.__str__()
+
 class ProblemGenerator:
     
     def __init__(self, 
@@ -37,11 +49,13 @@ class ProblemGenerator:
         results = []
         for i in range(count):
             seq = '0'
+            numerator = '0'
+            denominator = '0'
             # force divergent sequences
             while (limit(seq, 'n', oo) != oo):
                 # sympify to simplifiy
                 numerator = str(sympify(self.generate_expression()))
                 denominator = str(sympify(self.generate_expression()))
                 seq = '(' + numerator + ') / (' + denominator + ')'
-            results.append(seq)     
+            results.append(Problem(numerator, denominator))     
         return results if len(results) > 1 else results[0]
