@@ -1,7 +1,7 @@
-from sympy import sympify, oo, limit
+from sympy import sympify, oo, limit, Add
 import random
 
-class Problem:
+class SeqFraction:
     
     def __init__(self, top, bot):
         self.top = sympify(top)
@@ -12,6 +12,12 @@ class Problem:
     
     def __repr__(self):
         return self.__str__()
+    
+    def is_valid(self):
+        return limit(str(self), 'n', oo) == oo
+    
+    def numerator_split(self):
+        return self.top.args if self.top.func == Add else (self.top, )
 
 class ProblemGenerator:
     
@@ -57,5 +63,5 @@ class ProblemGenerator:
                 numerator = str(sympify(self.generate_expression()))
                 denominator = str(sympify(self.generate_expression()))
                 seq = '(' + numerator + ') / (' + denominator + ')'
-            results.append(Problem(numerator, denominator))     
+            results.append(SeqFraction(numerator, denominator))     
         return results if len(results) > 1 else results[0]
