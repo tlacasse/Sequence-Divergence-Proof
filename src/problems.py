@@ -1,4 +1,5 @@
-from sympy import sympify, oo, limit, Add
+from sympy import (sympify, cancel, oo, limit, 
+                   Add, Pow, Mul, Integer)
 import random
 
 class SeqFraction:
@@ -25,8 +26,39 @@ class SeqFraction:
     def is_valid(self):
         return limit(str(self), 'n', oo) == oo
     
+    def to_frac_expr(self):
+        return sympify(str(self), evaluate = False)
+    
     def numerator_split(self):
         return self.top.args if self.top.func == Add else (self.top, )
+    
+    def factor_out_top(self, factor):
+        return self.__factor_out(self.top, factor)
+    
+    def factor_out_bot(self, factor):
+        return self.__factor_out(self.bot, factor)
+    
+    def is_done(self):
+        return self.bot.is_constant()
+    
+    # TODO: work with sqrt(n)
+    def __factor_out(self, expr, factor):
+        factor = sympify(factor)
+        divide_out = Mul(expr, Pow(factor, Integer(-1)))
+        divide_out = cancel(sympify(divide_out))
+        if (self.__get_expr_denominator(divide_out) != None):
+            return None
+        else:
+            return divide_out
+    
+    def __get_expr_denominator(self, expr):
+        if (expr.func == Mul):
+            for t in expr.args:
+                if (t.func == Pow 
+                        and t.args[1].is_integer
+                        and t.args[1].is_negative):
+                    return t.args[0]
+        return None
 
 class ProblemGenerator:
     

@@ -1,9 +1,11 @@
-from sympy import Symbol, Mul, Pow, Add, Integer
+from sympy import Symbol, Mul, Pow, Add, Integer, sympify
 from problems import SeqFraction
 
 n = Symbol('n')
 N = Symbol('N')
 M = Symbol('M')
+
+FACTOR_OUT_OPTIONS = [sympify(e) for e in ['n', 'n**2', 'n**3']]
 
 class Proof:
     
@@ -18,12 +20,15 @@ class Proof:
             if (on not in unique):
                 unique.add(on)
                 if (on.is_valid()):
-                    print(len(self.steps))
-                    print(on)
                     for i, t in enumerate(on.numerator_split()):
                         for d in self.descendant_nodes(t):
                             new_top = self.replace_term(on.top, i, d)
                             self.steps.append(SeqFraction(new_top, on.bot))
+                    for foo in FACTOR_OUT_OPTIONS:
+                        factor_out_top = on.factor_out_top(foo)
+                        factor_out_bot = on.factor_out_bot(foo)
+                        if (factor_out_top != None and factor_out_bot != None):
+                            self.steps.append(SeqFraction(factor_out_top, factor_out_bot))
     
     def replace_term(self, expr, i, new_term):
         if (expr.func != Add):
