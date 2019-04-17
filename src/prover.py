@@ -12,15 +12,18 @@ class Proof:
     
     def proof_search(self):
         # DFS
+        unique = set()
         while(len(self.steps) > 0):
             on = self.steps.pop()
-            if (on.is_valid()):
-                print(len(self.steps))
-                print(on)
-                for i, t in enumerate(on.numerator_split()):
-                    for d in self.descendant_nodes(t):
-                        new_top = self.replace_term(on.top, i, d)
-                        self.steps.append(SeqFraction(new_top, on.bot))
+            if (on not in unique):
+                unique.add(on)
+                if (on.is_valid()):
+                    print(len(self.steps))
+                    print(on)
+                    for i, t in enumerate(on.numerator_split()):
+                        for d in self.descendant_nodes(t):
+                            new_top = self.replace_term(on.top, i, d)
+                            self.steps.append(SeqFraction(new_top, on.bot))
     
     def replace_term(self, expr, i, new_term):
         if (expr.func != Add):
