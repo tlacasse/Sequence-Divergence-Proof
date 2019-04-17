@@ -13,6 +13,15 @@ class SeqFraction:
     def __repr__(self):
         return self.__str__()
     
+    def __eq__(self, other):
+        return self.top == other.top and self.bot == other.bot
+    
+    def __ne__(self, other):
+        return not self.__eq__(other)
+    
+    def __hash__(self):
+        return 51 * hash(self.top) * hash(self.bot)
+    
     def is_valid(self):
         return limit(str(self), 'n', oo) == oo
     
