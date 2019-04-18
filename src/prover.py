@@ -16,9 +16,12 @@ class Proof:
         # DFS
         unique = set()
         result = None
+        c = 0
         while(len(self.steps) > 0):
             so_far = self.steps.pop()
             on = so_far[-1]
+            print(on)
+            c = c + 1
             if (on not in unique):
                 unique.add(on)
                 if (on.is_valid()):
@@ -35,10 +38,16 @@ class Proof:
                             new_bot = self.replace_term(on.bot, i, a)
                             new_path = self.copy_and_append(so_far, SeqFraction(on.top, new_bot))
                             self.steps.append(new_path)
-                        for d in self.descendant_nodes(t):
-                            new_bot = self.replace_term(on.bot, i, d)
-                            new_path = self.copy_and_append(so_far, SeqFraction(on.top, new_bot))
-                            self.steps.append(new_path)
+                    for i, ta in enumerate(on.bot_split()):
+                        for j, td in enumerate(on.bot_split()):
+                            if (i != j):
+                                for a in self.ascendant_nodes(t):
+                                    for d in self.descendant_nodes(td):
+                                        new_bot = self.replace_term(on.bot, i, a)
+                                        new_bot = self.replace_term(new_bot, j, d)
+                                        new_path = self.copy_and_append(so_far, SeqFraction(on.top, new_bot))
+                                        self.steps.append(new_path)
+                                        # make sure greater than tho
                     for foo in FACTOR_OUT_OPTIONS:
                         factor_out_top = on.factor_out_top(foo)
                         factor_out_bot = on.factor_out_bot(foo)
@@ -46,8 +55,9 @@ class Proof:
                             new_path = self.copy_and_append(so_far, 
                                                             SeqFraction(factor_out_top, factor_out_bot))
                             self.steps.append(new_path)
+        print('count: ' + str(c))
         if (result == None):
-            return None
+            return None, None
         last_step = result[-1]
         return (result, solve(Add(last_step.to_frac_expr(), Mul(Integer(-1), M)), n))
     
