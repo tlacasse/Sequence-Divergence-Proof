@@ -1,8 +1,8 @@
 from sympy import Symbol, Mul, Pow, Add, Integer, sympify
+from sympy.solvers import solve
 from problems import SeqFraction
 
 n = Symbol('n')
-N = Symbol('N')
 M = Symbol('M')
 
 FACTOR_OUT_OPTIONS = [sympify(e) for e in ['n', 'n**2', 'n**3']]
@@ -10,25 +10,51 @@ FACTOR_OUT_OPTIONS = [sympify(e) for e in ['n', 'n**2', 'n**3']]
 class Proof:
     
     def __init__(self, problem):
-        self.steps = [problem]
+        self.steps = [[problem]]
     
     def proof_search(self):
         # DFS
         unique = set()
+        result = None
         while(len(self.steps) > 0):
-            on = self.steps.pop()
+            so_far = self.steps.pop()
+            on = so_far[-1]
             if (on not in unique):
                 unique.add(on)
                 if (on.is_valid()):
-                    for i, t in enumerate(on.numerator_split()):
+                    if (on.is_done()):
+                        result = so_far
+                        break
+                    for i, t in enumerate(on.top_split()):
                         for d in self.descendant_nodes(t):
                             new_top = self.replace_term(on.top, i, d)
-                            self.steps.append(SeqFraction(new_top, on.bot))
+                            new_path = self.copy_and_append(so_far, SeqFraction(new_top, on.bot))
+                            self.steps.append(new_path)
+                    for i, t in enumerate(on.bot_split()):
+                        for a in self.ascendant_nodes(t):
+                            new_bot = self.replace_term(on.bot, i, a)
+                            new_path = self.copy_and_append(so_far, SeqFraction(on.top, new_bot))
+                            self.steps.append(new_path)
+                        for d in self.descendant_nodes(t):
+                            new_bot = self.replace_term(on.bot, i, d)
+                            new_path = self.copy_and_append(so_far, SeqFraction(on.top, new_bot))
+                            self.steps.append(new_path)
                     for foo in FACTOR_OUT_OPTIONS:
                         factor_out_top = on.factor_out_top(foo)
                         factor_out_bot = on.factor_out_bot(foo)
                         if (factor_out_top != None and factor_out_bot != None):
-                            self.steps.append(SeqFraction(factor_out_top, factor_out_bot))
+                            new_path = self.copy_and_append(so_far, 
+                                                            SeqFraction(factor_out_top, factor_out_bot))
+                            self.steps.append(new_path)
+        if (result == None):
+            return None
+        last_step = result[-1]
+        return (result, solve(Add(last_step.to_frac_expr(), Mul(Integer(-1), M)), n))
+    
+    def copy_and_append(self, l, e):
+        new_l = [i for i in l]
+        new_l.append(e)
+        return new_l
     
     def replace_term(self, expr, i, new_term):
         if (expr.func != Add):

@@ -15,7 +15,7 @@ class SeqFraction:
         return self.__str__()
     
     def __eq__(self, other):
-        return self.top == other.top and self.bot == other.bot
+        return other != None and self.top == other.top and self.bot == other.bot
     
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -29,8 +29,11 @@ class SeqFraction:
     def to_frac_expr(self):
         return sympify(str(self), evaluate = False)
     
-    def numerator_split(self):
+    def top_split(self):
         return self.top.args if self.top.func == Add else (self.top, )
+    
+    def bot_split(self):
+        return self.bot.args if self.bot.func == Add else (self.bot, )
     
     def factor_out_top(self, factor):
         return self.__factor_out(self.top, factor)
@@ -58,6 +61,9 @@ class SeqFraction:
                         and t.args[1].is_integer
                         and t.args[1].is_negative):
                     return t.args[0]
+        if (expr.func == Pow):
+            if (expr.args[1] == Integer(-1)):
+                return expr.args[0]
         return None
 
 class ProblemGenerator:
