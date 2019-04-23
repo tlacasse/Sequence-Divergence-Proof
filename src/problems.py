@@ -1,5 +1,6 @@
-from sympy import (sympify, cancel, oo, limit, 
+from sympy import (sympify, cancel, oo, limit, lambdify,
                    Add, Pow, Mul, Integer)
+from sympy.abc import n
 import random
 
 class SeqFraction:
@@ -26,6 +27,10 @@ class SeqFraction:
     def is_valid(self):
         return limit(str(self), 'n', oo) == oo
     
+    def is_valid_order(self, other):
+        return (self.__expr_compare(self.top, other.top) <= 0 or 
+                self.__expr_compare(self.bot, other.bot) >= 0)
+    
     def to_frac_expr(self):
         return sympify(str(self), evaluate = False)
     
@@ -42,7 +47,10 @@ class SeqFraction:
         return self.__factor_out(self.bot, factor)
     
     def is_done(self):
-        return self.bot.is_constant()
+        return self.__is_single_term(self.top) and self.__is_single_term(self.bot)
+    
+    def __is_single_term(self, expr):
+        return expr.func != Add
     
     # TODO: work with sqrt(n)
     def __factor_out(self, expr, factor):
@@ -65,6 +73,19 @@ class SeqFraction:
             if (expr.args[1] == Integer(-1)):
                 return expr.args[0]
         return None
+    
+    def __expr_compare(self, expr1, expr2):
+        test_value = 100000
+        expr1_f = lambdify(n, expr1)
+        expr2_f = lambdify(n, expr2)
+        val1 = expr1_f(test_value)
+        val2 = expr2_f(test_value)
+        if (val1 < val2):
+            return 1
+        elif (val1 > val2):
+            return -1
+        else:
+            return 0
 
 class ProblemGenerator:
     
