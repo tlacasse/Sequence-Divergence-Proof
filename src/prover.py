@@ -1,13 +1,11 @@
-from sympy import Symbol, Mul, Pow, Add, Integer, sympify
-from sympy.solvers import solve
+from sympy import Mul, Pow, Add, Integer, sympify
+from sympy.abc import n
+from proof import Proof
 from problems import SeqFraction
-
-n = Symbol('n')
-M = Symbol('M')
 
 FACTOR_OUT_OPTIONS = [sympify(e) for e in ['n', 'n**2', 'n**3']]
 
-class Proof:
+class Prover:
     
     def __init__(self, problem):
         self.steps = [[problem]]
@@ -45,12 +43,9 @@ class Proof:
                         factor_out_top = on.factor_out_top(foo)
                         factor_out_bot = on.factor_out_bot(foo)
                         if (factor_out_top != None and factor_out_bot != None):
-        if (result == None):
-            return None
-        last_step = result[-1]
-        return (result, solve(Add(last_step.to_frac_expr(), Mul(Integer(-1), M)), n))
                             self.__add_to_frontier(so_far, on, 
                                                    factor_out_top, factor_out_bot)
+        return None if result == None else Proof(result)
     
     def __add_to_frontier(self, so_far, on, top, bot):
         next_frac = SeqFraction(top, bot)
