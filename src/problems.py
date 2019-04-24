@@ -27,8 +27,8 @@ class SeqFraction:
         return limit(str(self), 'n', oo) == oo
     
     def is_valid_order(self, other):
-        return (exprutils.expr_compare(self.top, other.top) <= 0 or 
-                exprutils.expr_compare(self.bot, other.bot) >= 0)
+        return (exprutils.expr_compare(self.top, other.top) < 0 or 
+                exprutils.expr_compare(self.bot, other.bot) > 0)
     
     def to_frac_expr(self):
         return sympify(str(self), evaluate = False)

@@ -20,7 +20,11 @@ def expr_denominator(expr):
         search = [expr] if expr.func == Pow else expr.args
         for t in search:
             if (t.func == Pow and is_neg_int(t.args[1])):
-                return t.args[0]
+                exp = abs(int(t.args[1]))
+                if (exp > 1):
+                    return t.args[0]**exp
+                else:
+                    return t.args[0]
     return None
 
 def expr_compare(expr1, expr2):
