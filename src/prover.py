@@ -1,7 +1,10 @@
-from sympy import Mul, Pow, Add, Integer, sympify
+from sympy import Mul, Pow, Integer, sympify
 from sympy.abc import n
+
 from proof import Proof
 from problems import SeqFraction
+
+import exprutils
 
 FACTOR_OUT_OPTIONS = [sympify(e) for e in ['n', 'n**2', 'n**3']]
 
@@ -25,19 +28,19 @@ class Prover:
                         break
                     for i, t in enumerate(on.top_split()):
                         for d in self.descendant_nodes(t):
-                            new_top = self.replace_term(on.top, i, d)
+                            new_top = exprutils.replace_term(on.top, i, d)
                             self.__add_to_frontier(so_far, on, new_top, on.bot)
                     for i, t in enumerate(on.bot_split()):
                         for a in self.ascendant_nodes(t):
-                            new_bot = self.replace_term(on.bot, i, a)
+                            new_bot = exprutils.replace_term(on.bot, i, a)
                             self.__add_to_frontier(so_far, on, on.top, new_bot)
-                        new_bot = self.replace_term(on.bot, i, Integer(0))
+                        new_bot = exprutils.replace_term(on.bot, i, Integer(0))
                         self.__add_to_frontier(so_far, on, on.top, new_bot)
                         for j, z in enumerate(on.bot_split()):
                             if (i != j):
                                 for a in self.ascendant_nodes(t):
-                                    new_bot = self.replace_term(on.bot, i, a)
-                                    new_bot = self.replace_term(new_bot, j, Integer(0))
+                                    new_bot = exprutils.replace_term(on.bot, i, a)
+                                    new_bot = exprutils.replace_term(new_bot, j, Integer(0))
                                     self.__add_to_frontier(so_far, on, on.top, new_bot)
                     for foo in FACTOR_OUT_OPTIONS:
                         factor_out_top = on.factor_out_top(foo)
@@ -57,14 +60,6 @@ class Prover:
         new_l = [i for i in l]
         new_l.append(e)
         return new_l
-    
-    def replace_term(self, expr, i, new_term):
-        if (expr.func != Add):
-            return new_term
-        else:
-            new_expr = list(expr.args)
-            new_expr[i] = new_term
-            return Add(*new_expr) # unpack list
     
     def descendant_nodes(self, expr):
         if (expr.func == Integer):

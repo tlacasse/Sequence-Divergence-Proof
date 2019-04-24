@@ -1,6 +1,5 @@
-from sympy import (sympify, cancel, oo, limit, lambdify,
-                   Add, Pow, Mul, Integer)
-from sympy.abc import n
+from sympy import sympify, oo, limit, Add
+import exprutils
 import random
 
 class SeqFraction:
@@ -28,8 +27,8 @@ class SeqFraction:
         return limit(str(self), 'n', oo) == oo
     
     def is_valid_order(self, other):
-        return (self.__expr_compare(self.top, other.top) <= 0 or 
-                self.__expr_compare(self.bot, other.bot) >= 0)
+        return (exprutils.expr_compare(self.top, other.top) <= 0 or 
+                exprutils.expr_compare(self.bot, other.bot) >= 0)
     
     def to_frac_expr(self):
         return sympify(str(self), evaluate = False)
@@ -41,52 +40,16 @@ class SeqFraction:
         return self.bot.args if self.bot.func == Add else (self.bot, )
     
     def factor_out_top(self, factor):
-        return self.__factor_out(self.top, factor)
+        return exprutils.factor_out(self.top, factor)
     
     def factor_out_bot(self, factor):
-        return self.__factor_out(self.bot, factor)
+        return exprutils.factor_out(self.bot, factor)
     
     def is_done(self):
-        return self.__is_single_term(self.top) and self.__is_single_term(self.bot)
+        return (exprutils.is_single_term(self.top) 
+            and exprutils.is_single_term(self.bot)
+            and self.bot.is_constant)
     
-    def __is_single_term(self, expr):
-        return expr.func != Add
-    
-    # TODO: work with sqrt(n)
-    def __factor_out(self, expr, factor):
-        factor = sympify(factor)
-        divide_out = Mul(expr, Pow(factor, Integer(-1)))
-        divide_out = cancel(sympify(divide_out))
-        if (self.__get_expr_denominator(divide_out) != None):
-            return None
-        else:
-            return divide_out
-    
-    def __get_expr_denominator(self, expr):
-        if (expr.func == Mul):
-            for t in expr.args:
-                if (t.func == Pow 
-                        and t.args[1].is_integer
-                        and t.args[1].is_negative):
-                    return t.args[0]
-        if (expr.func == Pow):
-            if (expr.args[1] == Integer(-1)):
-                return expr.args[0]
-        return None
-    
-    def __expr_compare(self, expr1, expr2):
-        test_value = 100000
-        expr1_f = lambdify(n, expr1)
-        expr2_f = lambdify(n, expr2)
-        val1 = expr1_f(test_value)
-        val2 = expr2_f(test_value)
-        if (val1 < val2):
-            return 1
-        elif (val1 > val2):
-            return -1
-        else:
-            return 0
-
 class ProblemGenerator:
     
     def __init__(self, 
