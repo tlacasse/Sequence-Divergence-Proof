@@ -5,7 +5,7 @@ from sympy.abc import n, M
 
 import subprocess
 
-PROOF_INSERT_MARKER = '\qquad'
+PROOF_INSERT_MARKER = '%%%proof%%%'
 
 TEX_TEMPLATE = '''
 \\documentclass[12pt]{article}
@@ -22,7 +22,7 @@ TEX_TEMPLATE = '''
 \\begin{document}
 \\noindent
 \\begin{align*}
-    \qquad
+    %%%proof%%%
 \\end{align*}
 \\end{document}
 '''
