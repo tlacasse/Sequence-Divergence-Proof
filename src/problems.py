@@ -48,7 +48,7 @@ class SeqFraction:
     def is_done(self):
         return (exprutils.is_single_term(self.top) 
             and exprutils.is_single_term(self.bot)
-            and self.bot.is_constant)
+            and self.bot.is_constant())
     
 class ProblemGenerator:
     

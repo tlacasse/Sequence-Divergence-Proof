@@ -1,11 +1,33 @@
 from sympy import Add, Mul, Pow, Integer, lambdify, sympify, cancel
 from sympy.abc import n
 
+def is_full_term(expr):
+    return len(expr.args) > 1 and expr.args[1].func == Pow
+
 def is_neg_int(expr):
     return expr.is_integer and expr.is_negative
 
 def is_single_term(expr):
-    return expr.func != Add 
+    return expr.func != Add
+
+def get_term_parts(expr):
+    if (expr.func == Mul):
+        coeff = int(expr.args[0])
+    elif (expr.is_integer):
+        coeff = int(expr)
+    else:
+        coeff = 1
+        
+    if (is_full_term(expr)):
+        expon = int(expr.args[1].args[1])
+    elif (expr.func == Pow):
+        expon = int(expr.args[1])
+    elif (expr.is_integer):
+        expon = 0
+    else:
+        expon = 1
+        
+    return coeff, expon
 
 def replace_term(expr, i, new_term):
     if (expr.func != Add):
