@@ -99,27 +99,36 @@ class Prover:
         new_l.append(e)
         return new_l
     
-    def descendant_nodes(self, expr):
-        coeff, expon = exprutils.get_term_parts(expr)
+    def descendant_nodes(self, expr, sign_override=1):
+        sign, coeff, expon = exprutils.get_term_parts(expr)
+        if (sign == -1):
+            return self.ascendant_nodes(
+                    exprutils.build_term(coeff, expon), sign_override=-1)
         if (expon == 0):
             # constant
             return [Integer(0)] if coeff > 0 else []
         
         crange = range(1, min(coeff + 1, self.COEFFICIENT_BOUND))
         erange = range(0, min(expon + 1, self.EXPONENT_BOUND))
-        results = [0]
-        results.extend(self._build_terms(crange, erange, coeff, expon))
+        results = [Integer(0)]
+        results.extend(self._build_terms(sign*sign_override, 
+                                         crange, erange, coeff, expon))
         return results
     
-    def ascendant_nodes(self, expr):
-        coeff, expon = exprutils.get_term_parts(expr)
+    def ascendant_nodes(self, expr, sign_override=1):
+        sign, coeff, expon = exprutils.get_term_parts(expr)
+        if (sign == -1):
+            return self.descendant_nodes(
+                    exprutils.build_term(coeff, expon), sign_override=-1)
         
         crange = range(coeff, self.COEFFICIENT_BOUND + 1)
         erange = range(expon, self.EXPONENT_BOUND + 1)
-        return set(self._build_terms(crange, erange, coeff, expon)) # why is set
+        return set(self._build_terms(sign*sign_override, 
+                                     crange, erange, coeff, expon)) # why is set
     
-    def _build_terms(self, coeff_opts, expon_opts, coeff_start, expon_start):
+    def _build_terms(self, sign, coeff_opts, expon_opts, coeff_start, expon_start):
         for c in coeff_opts:
+            sign_c = Mul(Integer(sign), c)
             for e in expon_opts:
                 if (c != coeff_start or e != expon_start):
-                    yield Mul(c, Pow(n, e))
+                    yield Mul(sign_c, Pow(n, e))

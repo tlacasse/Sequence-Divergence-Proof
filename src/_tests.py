@@ -9,35 +9,47 @@ def do_assert(result, expected):
 # exprutils.get_term_parts
     
 result = exprutils.get_term_parts(sympify('0'))
-expected = (0, 0)
+expected = (0, 0, 0)
 do_assert(result, expected)
 
 result = exprutils.get_term_parts(sympify('5'))
-expected = (5, 0)
+expected = (1, 5, 0)
 do_assert(result, expected)
 
 result = exprutils.get_term_parts(sympify('n'))
-expected = (1, 1)
+expected = (1, 1, 1)
 do_assert(result, expected)
 
 result = exprutils.get_term_parts(sympify('3*n'))
-expected = (3, 1)
+expected = (1, 3, 1)
 do_assert(result, expected)
 
 result = exprutils.get_term_parts(sympify('n**2'))
-expected = (1, 2)
+expected = (1, 1, 2)
 do_assert(result, expected)
 
 result = exprutils.get_term_parts(sympify('n**5'))
-expected = (1, 5)
+expected = (1, 1, 5)
 do_assert(result, expected)
 
 result = exprutils.get_term_parts(sympify('4*n**2'))
-expected = (4, 2)
+expected = (1, 4, 2)
 do_assert(result, expected)
 
 result = exprutils.get_term_parts(sympify('7*n**6'))
-expected = (7, 6)
+expected = (1, 7, 6)
+do_assert(result, expected)
+
+result = exprutils.get_term_parts(sympify('-2'))
+expected = (-1, 2, 0)
+do_assert(result, expected)
+
+result = exprutils.get_term_parts(sympify('-6*n'))
+expected = (-1, 6, 1)
+do_assert(result, expected)
+
+result = exprutils.get_term_parts(sympify('-4*n**2'))
+expected = (-1, 4, 2)
 do_assert(result, expected)
 
 # exprutils.replace_term

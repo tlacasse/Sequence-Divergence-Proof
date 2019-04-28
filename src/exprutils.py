@@ -1,6 +1,11 @@
 from sympy import Add, Mul, Pow, Integer, lambdify, sympify, cancel
 from sympy.abc import n
 
+def sign(n):
+    if (n == 0):
+        return 0
+    return 1 if n > 0 else -1
+
 def is_full_term(expr):
     return len(expr.args) > 1 and expr.args[1].func == Pow
 
@@ -9,6 +14,9 @@ def is_neg_int(expr):
 
 def is_single_term(expr):
     return expr.func != Add
+
+def build_term(coeff, expon):
+    return Mul(coeff, Pow(n, expon))
 
 def get_term_parts(expr):
     if (expr.func == Mul):
@@ -27,7 +35,7 @@ def get_term_parts(expr):
     else:
         expon = 1
         
-    return coeff, expon
+    return sign(coeff), abs(coeff), expon
 
 def replace_term(expr, i, new_term):
     if (expr.func != Add):
