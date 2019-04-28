@@ -8,6 +8,7 @@ import exprutils
 
 FACTOR_OUT_OPTIONS = [sympify(e) for e in ['n', 'n**2', 'n**3']]
 
+# TODO: consider negative coefficients
 class Prover:
     
     def __init__(self, problem):
@@ -39,6 +40,10 @@ class Prover:
         for i, t in enumerate(self.current.top_split()):
             new_nodes.extend(self._get_top_replaced_with_descendants(i, t))
             
+        bot_term_matrix = self._build_term_matrix(self.current.bot_split())
+        for i in self._get_expr_combinations(bot_term_matrix):
+            new_nodes.append(SeqFraction(self.current.top, i))
+            
         for i, t in enumerate(self.current.bot_split()):
             new_nodes.extend(self._get_bot_replaced_with_ascendants(i, t))
            
@@ -52,6 +57,25 @@ class Prover:
             if (factor_out_top != None and factor_out_bot != None):
                 new = SeqFraction(factor_out_top, factor_out_bot)
                 self._add_to_frontier(new, skip_order_check = True)
+                
+    def _build_term_matrix(self, terms):
+        result = []
+        for t in terms:
+            term_opts = []
+            term_opts.extend(self.descendant_nodes(t))
+            term_opts.extend(self.ascendant_nodes(t))
+            result.append(term_opts)
+        return result
+    
+    def _get_expr_combinations(self, term_matrix):
+        if (len(term_matrix) == 1):
+            return term_matrix[0]
+        prev = self._get_expr_combinations(term_matrix[:-1])
+        result = []
+        for i in prev:
+            for j in term_matrix[-1]:
+                result.append(Add(i, j))
+        return result
                 
     def _get_top_replaced_with_descendants(self, term_index, term):
         for d in self.descendant_nodes(term):
@@ -69,7 +93,6 @@ class Prover:
             if (skip_order_check or self.current.is_valid_order(new)):
                 new_path = self._copy_and_append(self.path, new)
                 self.steps.append(new_path)
-        #else: print(str(current) + ' ||| ' + str(next_frac))
 
     def _copy_and_append(self, l, e):
         new_l = [i for i in l]
