@@ -37,6 +37,14 @@ def get_term_parts(expr):
         
     return sign(coeff), abs(coeff), expon
 
+def get_all_term_parts(expr):
+    terms = list(expr.args) if expr.func == Add else [expr]
+    term_parts = list(map((lambda t: get_term_parts(t)), terms))
+    # sort by coefficient, then exponent, then sign
+    for i in [1, 2, 0]:
+        term_parts.sort(key=(lambda t: t[i]), reverse=True)
+    return term_parts
+
 def replace_term(expr, i, new_term):
     if (expr.func != Add):
         return new_term
