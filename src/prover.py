@@ -10,8 +10,8 @@ import exprutils
 # TODO: consider negative coefficients
 class Prover:
     
-    def __init__(self, problem):
-        self.steps = [[problem]]
+    def __init__(self, method):
+        self.method = method
         self.current = None
         self.path = None
         self.COEFFICIENT_BOUND = 10
@@ -19,12 +19,12 @@ class Prover:
         self.FACTOR_OUT_OPTIONS = [sympify('n**' + str(e)) 
                                     for e in range(self.EXPONENT_BOUND)]
     
-    def proof_search(self):
-        # DFS
-        self.unique = {self.steps[0][0]}
+    def proof_search(self, problem):
+        self.method.start(problem)
+        self.unique = {problem}
         result = None
-        while(len(self.steps) > 0):
-            path = self.steps.pop()
+        while(self.method.remaining() > 0):
+            path = self.method.remove()
             current = path[-1]
             if (current.is_valid()):
                 if (current.is_done()):
@@ -86,7 +86,7 @@ class Prover:
             self.unique.add(new)
             if (skip_order_check or self.current.is_valid_order(new)):
                 new_path = self._copy_and_append(self.path, new)
-                self.steps.append(new_path)
+                self.method.add(new_path)
 
     def _copy_and_append(self, l, e):
         new_l = [i for i in l]
