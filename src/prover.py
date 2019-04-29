@@ -4,9 +4,8 @@ from sympy.abc import n
 from proof import Proof
 from problems import SeqFraction
 
+from util import it_combinations
 import exprutils
-
-FACTOR_OUT_OPTIONS = [sympify(e) for e in ['n', 'n**2', 'n**3']]
 
 # TODO: consider negative coefficients
 class Prover:
@@ -17,6 +16,8 @@ class Prover:
         self.path = None
         self.COEFFICIENT_BOUND = 10
         self.EXPONENT_BOUND = 5
+        self.FACTOR_OUT_OPTIONS = [sympify('n**' + str(e)) 
+                                    for e in range(self.EXPONENT_BOUND)]
     
     def proof_search(self):
         # DFS
@@ -51,7 +52,7 @@ class Prover:
             #print(node)
             self._add_to_frontier(node)  
             
-        for foo in FACTOR_OUT_OPTIONS:
+        for foo in self.FACTOR_OUT_OPTIONS:
             factor_out_top = self.current.factor_out_top(foo)
             factor_out_bot = self.current.factor_out_bot(foo)
             if (factor_out_top != None and factor_out_bot != None):
@@ -68,14 +69,7 @@ class Prover:
         return result
     
     def _get_expr_combinations(self, term_matrix):
-        if (len(term_matrix) == 1):
-            return term_matrix[0]
-        prev = self._get_expr_combinations(term_matrix[:-1])
-        result = []
-        for i in prev:
-            for j in term_matrix[-1]:
-                result.append(Add(i, j))
-        return result
+        return it_combinations(term_matrix, (lambda a, b: Add(a, b)))
                 
     def _get_top_replaced_with_descendants(self, term_index, term):
         for d in self.descendant_nodes(term):
