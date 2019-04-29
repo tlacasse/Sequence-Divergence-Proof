@@ -1,11 +1,12 @@
 from sympy import Add, Mul, Pow, Integer, sympify
 from sympy.abc import n
 
+from exprmap import COEFF_BOUND, EXPON_BOUND
 from proof import Proof
 from problems import SeqFraction
+import exprutils
 
 from util import it_combinations
-import exprutils
 
 # TODO: consider negative coefficients
 class Prover:
@@ -14,10 +15,8 @@ class Prover:
         self.method = method
         self.current = None
         self.path = None
-        self.COEFFICIENT_BOUND = 10
-        self.EXPONENT_BOUND = 5
         self.FACTOR_OUT_OPTIONS = [sympify('n**' + str(e)) 
-                                    for e in range(self.EXPONENT_BOUND)]
+                                    for e in range(EXPON_BOUND)]
     
     def proof_search(self, problem):
         self.method.start(problem)
@@ -102,8 +101,8 @@ class Prover:
             # constant
             return [Integer(0)] if coeff > 0 else []
         
-        crange = range(1, min(coeff + 1, self.COEFFICIENT_BOUND))
-        erange = range(0, min(expon + 1, self.EXPONENT_BOUND))
+        crange = range(1, min(coeff + 1, COEFF_BOUND))
+        erange = range(0, min(expon + 1, EXPON_BOUND))
         results = [Integer(0)]
         results.extend(self._build_terms(sign*sign_override, 
                                          crange, erange, coeff, expon))
@@ -115,8 +114,8 @@ class Prover:
             return self.descendant_nodes(
                     exprutils.build_term(coeff, expon), sign_override=-1)
         
-        crange = range(coeff, self.COEFFICIENT_BOUND + 1)
-        erange = range(expon, self.EXPONENT_BOUND + 1)
+        crange = range(coeff, COEFF_BOUND)
+        erange = range(expon, EXPON_BOUND)
         return set(self._build_terms(sign*sign_override, 
                                      crange, erange, coeff, expon)) # why is set
     
