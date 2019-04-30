@@ -10,22 +10,30 @@ from util import it_combinations
 
 class Prover:
     
-    def __init__(self, method):
+    def __init__(self, method, search_limit=None):
         self.method = method
         self.current = None
         self.path = None
         self.FACTOR_OUT_OPTIONS = [sympify('n**' + str(e)) 
                                     for e in range(EXPON_BOUND)]
         self.print = False
+        self.search_limit = search_limit
     
     def proof_search(self, problem):
+        self.count_all = 0
+        self.count_valid = 0
         self.method.start(problem)
         self.unique = {problem}
         result = None
         while(self.method.remaining() > 0):
+            self.count_all += 1
             path = self.method.remove()
             current = path[-1]
             if (current.is_valid()):
+                self.count_valid += 1
+                if (self.search_limit is not None 
+                        and self.count_valid > self.search_limit):
+                    return None
                 if (current.is_done()):
                     result = path
                     break

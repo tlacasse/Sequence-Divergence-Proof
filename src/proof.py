@@ -33,6 +33,9 @@ class Proof:
         self.steps = steps
         self.N = None
         
+    def get_step_count(self):
+        return len(self.steps)
+        
     def solve_for_N(self):
         self.N = solve(Add(self.steps[-1].to_frac_expr(), Mul(Integer(-1), M)), n)
         return self.N

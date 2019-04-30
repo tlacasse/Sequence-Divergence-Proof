@@ -9,6 +9,7 @@ def run_proof(prover, top, bot, nopdf=False, proofname='proof'):
     proof = prover.proof_search(problem)
     if (not nopdf):
         proof.write_proof_file(proofname)
+    return proof
     
 def build_prover(search_method, printsearch):
     search_obj = None
@@ -30,4 +31,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     p = build_prover(args.search, args.printsearch)
-    run_proof(p, args.top, args.bot, nopdf=args.nopdf)
+    _ = run_proof(p, args.top, args.bot, nopdf=args.nopdf)
