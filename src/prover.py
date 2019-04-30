@@ -8,7 +8,6 @@ import exprutils
 
 from util import it_combinations
 
-# TODO: consider negative coefficients
 class Prover:
     
     def __init__(self, method):

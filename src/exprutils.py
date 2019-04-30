@@ -77,8 +77,7 @@ def expr_compare(expr1, expr2):
         return -1
     else:
         return 0
-    
-# TODO: work with sqrt(n)
+
 def factor_out(expr, factor):
     factor = sympify(factor)
     divide_out = Mul(expr, Pow(factor, Integer(-1)))
