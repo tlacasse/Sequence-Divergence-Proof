@@ -165,9 +165,9 @@ def save_training_data_to_binary_file(training_data):
     for i, line in enumerate(training_data):
         split = line.split('|')
         for j, x in enumerate(split[0].split(',')):
-            arr_x[i][j] = x
+            arr_x[i][j] = int(x)
         for j, x in enumerate(split[1].split(',')):
-            arr_y[i][j] = x
+            arr_y[i][j] = int(x)
     print(arr_x)
     np.save('data/nn_x.npy', arr_x)
     np.save('data/nn_y.npy', arr_y)

@@ -16,6 +16,9 @@ def exprmap(expr):
     mapped = list(map((lambda t: exprmap_term(t)), terms))
     mapped.extend([0, 0, 0])
     mapped = mapped[:TERM_BOUND]
+    return exprmap_join(mapped)
+
+def exprmap_join(mapped):
     mapped.sort()
     value = 0
     for i, v in enumerate(mapped):
