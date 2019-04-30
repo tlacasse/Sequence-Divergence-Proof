@@ -113,3 +113,8 @@ test3.py
 test4.py
 test5.py
 real_map.txt
+
+*.pdf
+*.aux
+*.tex
+
