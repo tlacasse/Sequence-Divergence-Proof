@@ -20,7 +20,9 @@ def save_to_file(lines, file_name):
 def generate_problem_set():
     
     def step():
-        data = gen_denominator_up_to_factor_out_n()
+        data = gen_constant_denominator()
+        for i in gen_denominator_up_to_factor_out_n():
+            data.add(i)
         print('PROBLEM SET LENGTH: ' + str(len(data)))
         save_to_file(data, 'data/txt/proof_ex.txt')
         return data
