@@ -16,6 +16,7 @@ class Prover:
         self.path = None
         self.FACTOR_OUT_OPTIONS = [sympify('n**' + str(e)) 
                                     for e in range(EXPON_BOUND)]
+        self.print = False
     
     def proof_search(self, problem):
         self.method.start(problem)
@@ -28,6 +29,8 @@ class Prover:
                 if (current.is_done()):
                     result = path
                     break
+                if (self.print):
+                    print(current)
                 self.current = current
                 self.path = path
                 self._find_frontier_nodes()
