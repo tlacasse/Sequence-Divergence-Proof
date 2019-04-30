@@ -1,4 +1,5 @@
 from sympy import sympify, oo, limit, Add
+from sympy.abc import n
 import exprutils
 import random
 
@@ -46,9 +47,7 @@ class SeqFraction:
         return exprutils.factor_out(self.bot, factor)
     
     def is_done(self):
-        return (exprutils.is_single_term(self.top) 
-            and exprutils.is_single_term(self.bot)
-            and self.bot.is_constant())
+        return (self.top == n and self.bot.is_constant())
     
 class ProblemGenerator:
     

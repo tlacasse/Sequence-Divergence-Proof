@@ -53,9 +53,7 @@ class NeuralNetworkSearch(AbstractSearchMethod):
         return len(self.frontier)
         
     def remove(self):
-        x = map_exprs_to_array([self.last_point])
-        y = self.model.predict(x)
-        y = map_array_to_real(y[0])
+        y = self._predict_next(self.last_point)
         self.frontier.sort(key=(lambda f: self._frontier_sort(f, y)))
         next_node = self.frontier.pop(0)
         self.last_point = next_node[-1]
@@ -63,6 +61,11 @@ class NeuralNetworkSearch(AbstractSearchMethod):
     
     def add(self, new_path):
         self.frontier.append(new_path)
+        
+    def _predict_next(self, frac):
+        x = map_exprs_to_array([frac])
+        y = self.model.predict(x)
+        return map_array_to_real(y[0])
         
     def _frontier_sort(self, f, y):
         y_top = y[0]

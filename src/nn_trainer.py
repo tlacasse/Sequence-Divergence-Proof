@@ -2,15 +2,15 @@ import numpy as np
 import random
 
 from keras.models import Sequential
-from keras.layers import Dense, Dropout
+from keras.layers import Dense
 
 from exprmap import EXPRMAP, TERM_BOUND
 
 # use a smaller training subset to "replicate" the lack of data in
 # many other theorem proving domains.
-TRAINING_TEST_SPLIT = 0.1
+TRAINING_TEST_SPLIT = 0.5
 INPUT_NODES = TERM_BOUND * 2
-HIDDEN_NODES = 6
+HIDDEN_NODES = [6, 6, 6]
 OUTPUT_NODES = TERM_BOUND * 2
 
 x = np.load('data/nn_x.npy').astype('float64')
@@ -36,16 +36,30 @@ y_test  = y[split_index:]
 
 # model: INPUT_NODES - HIDDEN_NODES - OUTPUT_NODES 
 model = Sequential()
-model.add(Dense(HIDDEN_NODES, input_dim=INPUT_NODES, activation='relu'))
-model.add(Dropout(0.4))
+model.add(Dense(HIDDEN_NODES[0], input_dim=INPUT_NODES, activation='relu'))
+for h in HIDDEN_NODES[1:]:
+    model.add(Dense(h, activation='relu'))
 model.add(Dense(OUTPUT_NODES, activation='sigmoid'))
 
 # train
 model.compile(loss='mean_squared_error', optimizer='adam', metrics=['accuracy'])
-model.fit(x_train, y_train, epochs=20, batch_size=50)
-
-# results
-print(model.evaluate(x_train, model.predict(x_train)))
-print(model.evaluate(x_test, model.predict(x_test)))
+model.fit(x_train, y_train, epochs=40, batch_size=10) # better results with smaller batches
 
 model.save('data/nn.h5')
+
+# examples, to show accuracy
+
+print()
+print()
+print()
+
+vround = np.vectorize(round)
+
+x = x_train[:10]
+y = y_train[:10]
+y_pred = model.predict(x)
+y[:] *= 77
+y_pred[:] *= 77
+y_pred[:] = vround(y_pred[:])
+print(y)
+print(y_pred)

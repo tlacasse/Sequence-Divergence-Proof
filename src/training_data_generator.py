@@ -20,14 +20,14 @@ def save_to_file(lines, file_name):
 def generate_problem_set():
     
     def step():
-        data = gen_constant_denominator()
+        data = gen_top_down_and_bot_up_to_factor_out_n()
         for i in gen_denominator_up_to_factor_out_n():
             data.add(i)
         print('PROBLEM SET LENGTH: ' + str(len(data)))
         save_to_file(data, 'data/txt/proof_ex.txt')
         return data
     
-    COEFF_SET = [i + 1 for i in range(COEFF_BOUND)]
+    COEFF_SET = [i + 1 for i in range(COEFF_BOUND - 1)]
     EXPON_SET = [i + 1 for i in range(EXPON_BOUND)]
     
     def selection_n(opts, *pct_array):
@@ -44,15 +44,13 @@ def generate_problem_set():
         
     def gen_constant_denominator():
         results = set()
-        for i in range(1, COEFF_BOUND + 1):
-            seq = 'n/{}'.format(i)
-            results.add(seq)
-        for e in range(2, EXPON_BOUND + 1):
-            top = 'n**{}'.format(e)
-            for d in range(COEFF_BOUND + 1):
-                seq = '{}/{}'.format(top, d)
-                seq2 = '{}/{}'.format('n', d)
-                results.add(seq + ',' + seq2)
+        # these mess up training the neural network
+#        for e in range(2, EXPON_BOUND + 1):
+#            top = 'n**{}'.format(e)
+#            for d in range(COEFF_BOUND + 1):
+#                seq = '{}/{}'.format(top, d)
+#                seq2 = '{}/{}'.format('n', d)
+#                results.add(seq + ',' + seq2)
         for e1, e2 in selection_n(EXPON_SET, 0.8, 0.8):
             if (e1 != e2):
                 if (e2 > e1):
@@ -68,35 +66,66 @@ def generate_problem_set():
                         results.add(','.join([seq, step1, step2]))
         return results
     
-    def gen_denominator_up_to_factor_out_n():
+    def gen_top_down_and_bot_up_to_factor_out_n():
         results = set()
-        for c1, c2, c3, c4 in selection_n(COEFF_SET, 0.4, 0.4, 0.8, 0.8):
-            if (c3 != COEFF_BOUND):
-                if (random.choice([True, False])):
-                    top = '{}*n**2+{}'.format(c1, c2)
-                else:
-                    top = '{}*n**2+{}*n'.format(c1, c2)
-                bot = '{}*n+{}'.format(c3, c4)
-                seq = '({})/({})'.format(top, bot)
-                
-                up_bot = '{}*n'.format(c3 + 1)
-                down_top = '{}*n**2'.format(c1)
-                
-                step1 = '({})/({})'.format(top, up_bot)
-                step2 = '({})/({})'.format(down_top, up_bot)
-                step3 = '({})/({})'.format('n**2', up_bot)
-                step4 = '({})/({})'.format('n', c3 + 1)
-                
-                results.add(','.join([seq, step1, step2, step3, step4]))
-                
-                step1 = '({})/({})'.format(down_top, bot)
-                step2 = '({})/({})'.format('n**2', bot)
-                step3 = '({})/({})'.format('n**2', up_bot)
-                step4 = '({})/({})'.format('n', c3 + 1)
-                
-                results.add(','.join([seq, step1, step2, step3, step4]))
+        for c1, c2, c3, c4 in selection_n(COEFF_SET, 0.3, 0.3, 0.6, 0.6):
+            for e1, e2, e3, e4 in selection_n(EXPON_SET, 0.6, 0.3, 0.6, 0.3):
+                if (e1 != e2 and e3 != e4):
+                    if (e2 > e1):
+                        e1, e2 = e2, e1
+                    if (e4 > e3):
+                        e3, e4 = e4, e3
+                    top = Numerator(c1, e1, c2, e2)
+                    bot = Denominator(c3, e3, c4, e4)
+                    results.add(get_steps_topfirst(top, bot, e3))
         return results
-
+                
+    def get_steps_topfirst(top, bot, factor_out):
+        steps = []
+        steps.append('({})/({})'.format(top.start(), bot.start()))
+        for i in top.steps():
+            steps.append('({})/({})'.format(i, bot.start()))
+        top_end = top.steps()[-1]
+        for i in bot.steps():
+            steps.append('({})/({})'.format(top_end, i))
+        steps.append('({})/({})'.format(top.factor_out(factor_out), bot.factor_out()))
+        return ','.join(steps)
+    
+    class Numerator:
+        
+        def __init__(self, c1, e1, c2, e2):
+            self.c1 = c1
+            self.c2 = c2
+            self.e1 = e1
+            self.e2 = e2 if random.choice([True, False, False, False]) else 0
+            
+        def start(self):
+            return '{}*n**{}+{}*n**{}'.format(self.c1, self.e1, self.c2, self.e2)
+        
+        def steps(self):
+            return ['{}*n**{}'.format(self.c1, self.e1), 
+                    'n**{}'.format(self.e1)]
+        
+        def factor_out(self, e):
+            return 'n**{}'.format(self.e1 - e)
+    
+    class Denominator:
+        
+        def __init__(self, c1, e1, c2, e2):
+            self.c1 = c1
+            self.c2 = c2
+            self.e1 = e1
+            self.e2 = e2 if random.choice([True, False, False, False]) else 0
+            
+        def start(self):
+            return '{}*n**{}+{}*n**{}'.format(self.c1, self.e1, self.c2, self.e2)
+            
+        def steps(self):
+            return ['{}*n**{}'.format(self.c1 + 1, self.e1)]
+        
+        def factor_out(self):
+            return str(self.c1 + 1)
+    
     return step()
 
 ###############################################################################
