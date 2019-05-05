@@ -4,7 +4,7 @@ Generating proofs of divergence of fractional-polynomial sequences as in your "C
 
 Requires the python modules in `setup.sh` and also `pdflatex`.
 
-`prove_diverge.py` is the command-line script to generate the proof. Example:
+`prove_diverge.py` is the command-line script to generate the proofs. Example:
 
 > python prove_diverge.py 'n**2+3*n' 'n+5' --search nn --printsearch
 
